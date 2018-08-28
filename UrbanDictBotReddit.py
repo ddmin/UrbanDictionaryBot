@@ -11,7 +11,7 @@ def authenticate():
                          password = config.password,
                          client_id = config.client_id,
                          client_secret = config.client_secret,
-                         user_agent = "ddmin's UrbanDicBot v1.2")
+                         user_agent = "ddmin's UrbanDicBot v1.4")
     print("Authenticated!\n")
     return reddit
 

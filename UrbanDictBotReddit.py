@@ -5,6 +5,7 @@ import config
 import time
 import random
 from UrbDicBot import *
+from UD_Popular import *
 
 def authenticate():
     print("Authenticating UrbanDictBot...")
@@ -12,13 +13,13 @@ def authenticate():
                          password = config.password,
                          client_id = config.client_id,
                          client_secret = config.client_secret,
-                         user_agent = "ddmin's UrbanDicBot v2.2")
+                         user_agent = "ddmin's UrbanDicBot v2.7")
     print("Authenticated!\n")
     return reddit
 
-def run_bot(reddit, comment_id, words):
+def run_bot(reddit, comment_id, words, subreddit):
     print("Obtaining 25 comments...\n")
-    for comment in reddit.subreddit('test').comments(limit=25):
+    for comment in reddit.subreddit(subreddit).comments(limit=25):
                 
         if "!UrbanDictBot " in comment.body and comment.id not in comment_id:
             word_list = str(comment.body).split()
@@ -40,7 +41,7 @@ def run_bot(reddit, comment_id, words):
 
                     definition = word_lookup(words[rant])
                     source = 'https://www.urbandictionary.com/define.php?term='+words[rant]
-                    comment.reply(f"#**{words[rant].capitalize()}**:\n\n**Definition**: *{definition}*\n\n[Source]({source})\n\n***\n\n^(Bleep-bloop. I am a bot. | [Github](https://github.com/ddmin/UrbanDictionaryBot))")
+                    comment.reply(f"#{words[rant].capitalize()}:\n\n**Definition**: *{definition}*\n\n[Source]({source})\n\n***\n\n^(Bleep-bloop. I am a bot. | [Github](https://github.com/ddmin/UrbanDictionaryBot))")
                     print("Replied to comment " + comment.id)
 
                     with open("replied_to.txt", "a") as f:
@@ -49,7 +50,7 @@ def run_bot(reddit, comment_id, words):
                 elif word != '':
                     definition = word_lookup(word)
                     source = 'https://www.urbandictionary.com/define.php?term='+word
-                    comment.reply(f"#**{word.capitalize()}**:\n\n**Definition**: *{definition}*\n\n[Source]({source})\n\n***\n\n^(Bleep-bloop. I am a bot. | [Github](https://github.com/ddmin/UrbanDictionaryBot))")
+                    comment.reply(f"#{word.capitalize()}:\n\n**Definition**: *{definition}*\n\n[Source]({source})\n\n***\n\n^(Bleep-bloop. I am a bot. | [Github](https://github.com/ddmin/UrbanDictionaryBot))")
                     print("Replied to comment " + comment.id)
 
                     with open("replied_to.txt", "a") as f:
@@ -82,18 +83,26 @@ def get_ids():
     return replied_to
 
 def get_words():
-    with open("words.txt", "r") as f:
+    f = open('popular_words.txt', 'w')
+    f.close()
+    scrape_words()
+    with open("popular_words.txt", "r") as f:
         word_list = f.read()
         word_list = word_list.split("\n")
     return word_list
 
-reddit = authenticate()
+def main():
+    subreddit= input('Subreddit for this session: ')
+    reddit = authenticate()
 
-while True:
-    try:
-        comment_id = get_ids()
-        word_list = get_words()[:-1]
-        run_bot(reddit, comment_id, word_list)
-    except:
-        print('Error. Sleeping for 10 seconds\n')
-        time.sleep(10)
+    while True:
+        try:
+            comment_id = get_ids()
+            word_list = get_words()[:-1]
+            run_bot(reddit, comment_id, word_list, subreddit)
+        except:
+            print('Error. Sleeping for 10 seconds\n')
+            time.sleep(10)
+
+if __name__ == '__main__':
+    main()

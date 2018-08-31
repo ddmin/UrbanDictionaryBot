@@ -1,58 +1,37 @@
 from bs4 import BeautifulSoup
 import requests
-import praw
-import config
-import time
-from UrbDicBot import *
 
-def authenticate():
-    print("Authenticating UrbanDictBot...")
-    reddit = praw.Reddit(username = config.username,
-                         password = config.password,
-                         client_id = config.client_id,
-                         client_secret = config.client_secret,
-                         user_agent = "ddmin's UrbanDicBot v1.2")
-    print("Authenticated!\n")
-    return reddit
+def lineBreaks(defin):
+    string = ''
+    ignore = False
+    for x in range(0, len(defin)-4):
+        if defin[x] == '<':
+            ignore = True
+        if ignore == False:
+            string += defin[x]
+        if defin[x]+defin[x+1]+defin[x+2]+defin[x+3]+defin[x+4] == '<br/>':
+            string += '\n'
+        if defin[x] == '>':
+            ignore = False
+    return string
 
-def run_bot(reddit, comment_id):
-    print("Obtaining 25 comments...\n")
-    for comment in reddit.subreddit('test').comments(limit=25):
-                
-        if "!UrbanDictBot " in comment.body and comment.id not in comment_id and str(comment.body)[0:13] == '!UrbanDictBot':
-            word = str(comment.body)[14:]
-            print(f'Found word "{word}" in {comment.id}')
+def word_lookup(word):
+    website = 'https://www.urbandictionary.com/define.php?term='+word
+    source = requests.get(website).text
 
-            try:
-                definition = word_lookup(word)
-            except:
-                comment.reply('I can\'t find that word on Urban Dictionary.\n\n***\n\n^(Bleep-bloop, This action was performed by a bot.)')
-                print("Replied to comment " + comment.id)
-                with open("replied_to.txt", "a") as f:
-                    f.write(comment.id + "\n")
-                pass
-            
-            source = 'https://www.urbandictionary.com/define.php?term='+word
-            comment.reply(f"#**{word.capitalize()}**:\n\n**Definition**: *{definition}*\n\n[Source]({source})\n\n***\n\n^(Bleep-bloop, This action was performed by a bot.)")
-            print("Replied to comment " + comment.id)
+    soup = BeautifulSoup(source, 'lxml')
 
-            with open("replied_to.txt", "a") as f:
-                f.write(comment.id + "\n")
-                
-        
-                
-def get_ids():
-    with open("replied_to.txt", "r") as f:
-        replied_to = f.read()
-        replied_to = replied_to.split("\n")
-    return replied_to
+    section = soup.find('div', class_ = 'def-panel')
+    definition = section.find('div', class_ = 'meaning')
 
-reddit = authenticate()
+    string = lineBreaks(str(definition))
 
-while True:
-    try:
-        comment_id = get_ids()
-        run_bot(reddit, comment_id)
-    except:
-        print('Error. Sleeping for 30 seconds\n')
-        time.sleep(30)
+    return string
+
+def main():
+    word = input("Word to look up: ")
+    print(word_lookup(word))
+
+
+if __name__ == "__main__":
+    main()

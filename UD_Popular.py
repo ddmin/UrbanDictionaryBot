@@ -48,5 +48,3 @@ def scrape_words():
             f.write(x)
             if x != popular_words[-1]:
                 f.write('\n')
-
-scrape_words()

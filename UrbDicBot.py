@@ -26,7 +26,7 @@ def word_lookup(word):
 
     string = lineBreaks(str(definition))
 
-    return string
+    return string.strip()
 
 def main():
     word = input("Word to look up: ")

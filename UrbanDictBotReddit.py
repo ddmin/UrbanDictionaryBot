@@ -13,13 +13,13 @@ def authenticate():
                          password = config.password,
                          client_id = config.client_id,
                          client_secret = config.client_secret,
-                         user_agent = "ddmin's UrbanDicBot v2.7")
+                         user_agent = "ddmin's UrbanDicBot v2.8")
     print("Authenticated!\n")
     return reddit
 
-def run_bot(reddit, comment_id, words, subreddit):
-    print("Obtaining 25 comments...\n")
-    for comment in reddit.subreddit(subreddit).comments(limit=25):
+def run_bot(reddit, comment_id, words):
+    print("Obtaining comments...\n")
+    for comment in reddit.subreddit("all").comments(limit=None):
                 
         if "!UrbanDictBot " in comment.body and comment.id not in comment_id:
             word_list = str(comment.body).split()
@@ -41,7 +41,7 @@ def run_bot(reddit, comment_id, words, subreddit):
 
                     definition = word_lookup(words[rant])
                     source = 'https://www.urbandictionary.com/define.php?term='+words[rant]
-                    comment.reply(f"#{words[rant].capitalize()}:\n\n**Definition**: *{definition}*\n\n[Source]({source})\n\n***\n\n^(Bleep-bloop. I am a bot. | [Github](https://github.com/ddmin/UrbanDictionaryBot))")
+                    comment.reply(f'#{words[rant].capitalize()}:\n\n**Definition**: *{definition}*\n\n[Source]({source})\n\n***\n\n^(Bleep-bloop. I am a bot. |) [^(Github)](https://github.com/ddmin/UrbanDictionaryBot)')
                     print("Replied to comment " + comment.id)
 
                     with open("replied_to.txt", "a") as f:
@@ -50,7 +50,7 @@ def run_bot(reddit, comment_id, words, subreddit):
                 elif word != '':
                     definition = word_lookup(word)
                     source = 'https://www.urbandictionary.com/define.php?term='+word
-                    comment.reply(f"#{word.capitalize()}:\n\n**Definition**: *{definition}*\n\n[Source]({source})\n\n***\n\n^(Bleep-bloop. I am a bot. | [Github](https://github.com/ddmin/UrbanDictionaryBot))")
+                    comment.reply(f'#{word.capitalize()}:\n\n**Definition**: *{definition}*\n\n[Source]({source})\n\n***\n\n^(Bleep-bloop. I am a bot. |) [^(Github)](https://github.com/ddmin/UrbanDictionaryBot)')
                     print("Replied to comment " + comment.id)
 
                     with open("replied_to.txt", "a") as f:
@@ -61,13 +61,13 @@ def run_bot(reddit, comment_id, words, subreddit):
                             f.write(word + "\n")
                         
                 else:
-                    comment.reply('I can\'t find that word on Urban Dictionary.\n\n***\n\n^(Bleep-bloop. I am a bot. | [Github](https://github.com/ddmin/UrbanDictionaryBot))')
+                    comment.reply('I can\'t find that word on Urban Dictionary.\n\n***\n\n^(Bleep-bloop. I am a bot. |) [^(Github)](https://github.com/ddmin/UrbanDictionaryBot)')
                     print("Replied to comment " + comment.id)
                     with open("replied_to.txt", "a") as f:
                         f.write(comment.id + "\n")
                 
             except:
-                comment.reply('I can\'t find that word on Urban Dictionary.\n\n***\n\n^(Bleep-bloop. I am a bot. | [Github](https://github.com/ddmin/UrbanDictionaryBot))')
+                comment.reply('I can\'t find that word on Urban Dictionary.\n\n***\n\n^(Bleep-bloop. I am a bot. |) [^(Github)](https://github.com/ddmin/UrbanDictionaryBot)')
                 print("Replied to comment " + comment.id)
                 with open("replied_to.txt", "a") as f:
                     f.write(comment.id + "\n")
@@ -92,14 +92,13 @@ def get_words():
     return word_list
 
 def main():
-    subreddit= input('Subreddit for this session: ')
     reddit = authenticate()
 
     while True:
         try:
             comment_id = get_ids()
             word_list = get_words()[:-1]
-            run_bot(reddit, comment_id, word_list, subreddit)
+            run_bot(reddit, comment_id, word_list)
         except:
             print('Error. Sleeping for 10 seconds\n')
             time.sleep(10)

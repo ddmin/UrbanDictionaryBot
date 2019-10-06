@@ -1,5 +1,11 @@
+# UrbanDictionaryBot
+
 from bs4 import BeautifulSoup
 import requests
+
+
+def caps(s):
+    return ' '.join(list(map(lambda x: x.capitalize(), s.split())))
 
 def lineBreaks(defin):
     string = ''
@@ -29,8 +35,20 @@ def word_lookup(word):
     return string.strip()
 
 def main():
-    word = input("Word to look up: ")
-    print(word_lookup(word))
+    print("== UrbanDictionaryBot ==")
+    print()
+    print("Word to look up:")
+    word = input("\t> ")
+    print()
+
+    try:
+        definition = word_lookup(word)
+        print(caps(word) + ':')
+        print('\t' + definition)
+        print()
+        print(f'(Information from https://www.urbandictionary.com/define.php?term={word})')
+    except:
+        print("I can't find a definition for that word.")
 
 
 if __name__ == "__main__":

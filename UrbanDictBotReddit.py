@@ -20,15 +20,15 @@ def authenticate():
 def run_bot(reddit, comment_id, words):
     print("Obtaining comments...\n")
     for comment in reddit.subreddit("all").comments(limit=None):
-                
+
         if "!UrbanDictBot " in comment.body and comment.id not in comment_id:
             word_list = str(comment.body).split()
             for n in range(len(word_list)):
                 if word_list[n] == '!UrbanDictBot':
                     break
-          
+
             word = ''
-            
+
             for item in word_list[n+1:]:
                 word += item
                 if item != word_list[-1]:
@@ -46,7 +46,7 @@ def run_bot(reddit, comment_id, words):
 
                     with open("replied_to.txt", "a") as f:
                         f.write(comment.id + "\n")
-                    
+
                 elif word != '':
                     definition = word_lookup(word)
                     source = 'https://www.urbandictionary.com/define.php?term='+word
@@ -59,23 +59,19 @@ def run_bot(reddit, comment_id, words):
                     if word not in words:
                         with open("words.txt", "a") as f:
                             f.write(word + "\n")
-                        
+
                 else:
                     comment.reply('I can\'t find that word on Urban Dictionary.\n\n***\n\n^(Bleep-bloop. I am a bot. |) [^(Github)](https://github.com/ddmin/UrbanDictionaryBot)')
                     print("Replied to comment " + comment.id)
                     with open("replied_to.txt", "a") as f:
                         f.write(comment.id + "\n")
-                
+
             except:
                 comment.reply('I can\'t find that word on Urban Dictionary.\n\n***\n\n^(Bleep-bloop. I am a bot. |) [^(Github)](https://github.com/ddmin/UrbanDictionaryBot)')
                 print("Replied to comment " + comment.id)
                 with open("replied_to.txt", "a") as f:
                     f.write(comment.id + "\n")
-            
-            
-                
-       
-                
+
 def get_ids():
     with open("replied_to.txt", "r") as f:
         replied_to = f.read()
